@@ -97,4 +97,53 @@ exports.imageUpload = async (req,res) => {
     }
 }
 
-//video uplaode
+//video uplaod karni hai 
+exports.videoUpload = async (req,res) => {
+    try{
+         //data fetch
+         const { name, tags, email} = req.body;
+         console.log(name,tags,email);
+
+         const file = req.files.videoFile;
+
+         //validation
+        const supportedTypes = ["mp4", "mov",];
+        const fileType = file.name.split('.')[1].toLowerCase();
+        console.log("File Type", fileType);
+ 
+        if( !isFileTypeSupported(fileType, supportedTypes)) {
+            return res.status(400).json({
+                success:false,
+                message:'File format not Supported',
+            })
+        }
+
+        //fileformat supported
+        console.log("Uploading to Codehelp");
+        const response = await uploadFileToCloudinary(file, "selfhelp");
+        console.log(response);
+
+        //db mein entry save karni hai
+        const fileData = await File.create({
+            name,
+            tags,
+            email,
+            imageUrl: response.secure_url,
+        })
+        res.json({
+            success:true,
+            imageUrl : response.secure_url,
+            message:'Video Successfully Uploaded',
+        })
+ 
+
+    }
+    catch(error) {
+        console.error(error);
+        res.status(400).json ({
+            success:false,
+            message:'Something went Wrong',
+        })
+    }
+
+}
