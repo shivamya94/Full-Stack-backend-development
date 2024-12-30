@@ -31,3 +31,25 @@ exports.localFileUpload = async (req,res) => {
 
     }
 }
+
+//image upload ka handler
+
+exports.imageUpload = async (req,res) => {
+    try{
+        //data fetch
+        const { name, tags, email} = req.body;
+        console.log(name,tags,email);
+
+        const file = req.files.imageFile;
+        console.log(file);
+
+        //validation
+        const supportedTypes = ["jpg", "jpeg", "png"];
+        const fileType = file.name.split('.')[1]
+
+
+    }
+    catch(error) {
+
+    }
+}
