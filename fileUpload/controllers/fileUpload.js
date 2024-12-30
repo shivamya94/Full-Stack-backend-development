@@ -1,4 +1,5 @@
 const File = require("../models/File");
+const cloudinary = require("cloudinary").v2;
 
 //localfileupload -> hadler function
 
@@ -32,6 +33,16 @@ exports.localFileUpload = async (req,res) => {
     }
 }
 
+function isFileTypeSupported(type, supportedTypes) {
+    return supportedTypes.includes(type);
+}
+
+async function uploadFileToCloudinary(file, folder) {
+    const options = {folder};
+    console.log("temp file path ", file.tempFilePath);
+    return  await cloudinary.uploader.upload(file.tempFilePath, options);
+    
+}
 //image upload ka handler
 
 exports.imageUpload = async (req,res) => {
@@ -45,11 +56,45 @@ exports.imageUpload = async (req,res) => {
 
         //validation
         const supportedTypes = ["jpg", "jpeg", "png"];
-        const fileType = file.name.split('.')[1]
+        const fileType = file.name.split('.')[1].toLowerCase();
+        console.log("File Type", fileType);
+ 
+        if( !isFileTypeSupported(fileType, supportedTypes)) {
+            return res.status(400).json({
+                success:false,
+                message:'File format not Supported',
+            })
+        }
+
+        //fileformat supported
+        console.log("Uploading to Codehelp");
+        const response = await uploadFileToCloudinary(file, "selfhelp");
+        console.log(response);
+
+        //db mein entry save karni hai
+        const fileData = await File.create({
+            name,
+            tags,
+            email,
+            imageUrl: response.secure_url,
+        })
+        res.json({
+            success:true,
+            imageUrl : response.secure_url,
+            message:'Image Successfully Uploaded',
+        })
 
 
     }
     catch(error) {
+        console.error(error);
+        res.status(400).json({
+            success:false,
+            message:'Something went wrong',
+        })
+       
 
     }
 }
+
+//video uplaode
