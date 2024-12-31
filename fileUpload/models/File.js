@@ -22,9 +22,11 @@ const fileSchema = new mongoose.Schema({
 //post middleware
 fileSchema.post("save", async function(doc) {
     try{
+        console.log("DOC", doc)
 
     }
     catch(error) {
+        console.log(error);
 
     }
 })
